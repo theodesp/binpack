@@ -1,0 +1,23 @@
+sudo: false
+language: go
+
+go:
+  - 1.8.x
+  - 1.9.x
+  - 1.10.x
+  - 1.11.x
+  - tip
+
+matrix:
+  allow_failures:
+    - go: tip
+
+script:
+  - go test -cpu=2 -race -v ./...
+  - go test -cpu=2 -coverprofile=coverage.txt -covermode=atomic ./...
+
+notifications:
+  email: false
+
+after_success:
+  - codecov
