@@ -11,6 +11,7 @@ go:
 matrix:
   allow_failures:
     - go: tip
+  fast_finish: true
 
 script:
   - go test -cpu=2 -race -v ./...
