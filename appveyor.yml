@@ -29,7 +29,6 @@ install:
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
-  - ps: cd binpack
   - go test -cpu=2 -race -v ./...
 
 test: off
