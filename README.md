@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/theodesp/binpack.svg)](https://travis-ci.org/theodesp/binpack)
 [![GoDoc](https://godoc.org/github.com/theodesp/binpack?status.svg)](https://godoc.org/github.com/theodesp/binpack)
-[![Go Report Card](https://goreportcard.com/badge/github.com/theodesp/binpack)](https://goreportcard.com/report/github.com/theodesp/binpack)
+[![Go Report Card](https://goreportcard.com/badge/github.com/theodesp/binpack)](https://goreportcard.com/badge/github.com/theodesp/binpack)
 [![codecov.io](https://codecov.io/github/theodesp/binpack/branch/master/graph/badge.svg)](https://codecov.io/github/theodesp/binpack)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-lint.svg)](https://golangci.com/r/github.com/theodesp/binpack)
 [![CodeFactor](https://www.codefactor.io/repository/github/theodesp/binpack/badge)](https://www.codefactor.io/repository/github/theodesp/binpack)
