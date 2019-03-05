@@ -4,7 +4,7 @@
 [![codecov.io](https://codecov.io/github/theodesp/binpack/branch/master/graph/badge.svg)](https://codecov.io/github/theodesp/binpack)
 [![GolangCI](https://golangci.com/badges/github.com/golangci/golangci-lint.svg)](https://golangci.com/r/github.com/theodesp/binpack)
 [![CodeFactor](https://www.codefactor.io/repository/github/theodesp/binpack/badge)](https://www.codefactor.io/repository/github/theodesp/binpack)
-
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/0wdydpxh3o74vc9t?svg=true)](https://ci.appveyor.com/api/projects/status/0wdydpxh3o74vc9t?svg=true)
 
 # Binpack Encoding for Golang
 
