@@ -1,6 +1,6 @@
 .PHONY: format
 format:
-	@find . -type f -name "*.go*" -print0 | xargs -0 gofmt -s -w
+	@find . -type f -name "*.go" -print0 | xargs -0 gofmt -s -w
 
 .PHONY: bench
 bench:
