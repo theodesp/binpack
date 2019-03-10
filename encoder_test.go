@@ -40,6 +40,14 @@ func TestEncoder(t *testing.T) {
 			nil,
 			[]byte{byte(Nil)},
 		},
+		{
+			true,
+			[]byte{byte(True)},
+		},
+		{
+			false,
+			[]byte{byte(False)},
+		},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)

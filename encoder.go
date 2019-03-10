@@ -38,15 +38,6 @@ func (enc *Encoder) EncodeValue(value reflect.Value) error {
 	return enc.err
 }
 
-// encode nil into one byte to buffer.
-//
-// +-----------+
-// | 0000 1111 |   0x0f
-// +-----------+
-func (enc *Encoder) encodeNil() {
-	enc.buf.WriteCode(Nil)
-}
-
 // writeTo sends the data item to the writer
 func (enc *Encoder) writeTo(w io.Writer) {
 	// Write the data.
@@ -72,6 +63,36 @@ func (enc *Encoder) encode(v reflect.Value) {
 	switch v.Kind() {
 	case reflect.Invalid: // nil
 		enc.encodeNil()
+	case reflect.Bool:
+		enc.encodeBool(v.Bool())
 	default:
+	}
+}
+
+// encode nil into one byte to buffer.
+//
+// +-----------+
+// | 0000 1111 |   0x0f
+// +-----------+
+func (enc *Encoder) encodeNil() {
+	enc.buf.WriteCode(Nil)
+}
+
+// 	Encode Boolean
+// 	true
+//
+//	+-----------+
+//	| 0000 0100 |   0x04
+//	+-----------+
+//	false
+//
+//  +-----------+
+//  | 0000 0101 |   0x05
+//  +-----------+
+func (enc *Encoder) encodeBool(v bool) {
+	if !v {
+		enc.buf.WriteCode(False)
+	} else {
+		enc.buf.WriteCode(True)
 	}
 }
