@@ -15,6 +15,6 @@ func TestWriter_ErrorOnWrite(t *testing.T) {
 	w := errorWriter{}
 	err := NewEncoder(w).Encode(1)
 	if err == nil {
-		t.Fatalf("encoder did not returned error from writer")
+		t.Fatal("expected error from writer got none")
 	}
 }
