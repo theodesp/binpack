@@ -2,6 +2,7 @@ package binpack
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"testing"
 )
@@ -34,20 +35,23 @@ func TestWriter_EncodeNilPointer(t *testing.T) {
 func TestEncoder(t *testing.T) {
 	testCases := []struct {
 		in   interface{}
-		want []byte
+		want string
 	}{
 		{
 			nil,
-			[]byte{byte(Nil)},
+			"0f",
 		},
 		{
 			true,
-			[]byte{byte(True)},
+			"04",
 		},
 		{
 			false,
-			[]byte{byte(False)},
+			"05",
 		},
+		{"", "20"},
+		{"a", "2161"},
+		{"hello", "2568656c6c6f"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)
@@ -58,8 +62,8 @@ func TestEncoder(t *testing.T) {
 		if err != nil {
 			t.Fatalf("binpack:Encode error %v", err)
 		}
-		got := w.Bytes()
-		if !bytes.Equal(got, test.want) {
+		got := hex.EncodeToString(w.Bytes())
+		if got != test.want {
 			t.Fatalf("%s != %s (in=%#v)", got, test.want, test.in)
 		}
 	}

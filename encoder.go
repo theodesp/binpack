@@ -65,6 +65,8 @@ func (enc *Encoder) encode(v reflect.Value) {
 		enc.encodeNil()
 	case reflect.Bool:
 		enc.encodeBool(v.Bool())
+	case reflect.String:
+		enc.encodeString(v.String())
 	default:
 	}
 }
@@ -89,10 +91,41 @@ func (enc *Encoder) encodeNil() {
 //  +-----------+
 //  | 0000 0101 |   0x05
 //  +-----------+
-func (enc *Encoder) encodeBool(v bool) {
-	if !v {
+func (enc *Encoder) encodeBool(b bool) {
+	if !b {
 		enc.buf.WriteCode(False)
 	} else {
 		enc.buf.WriteCode(True)
 	}
+}
+
+// Encode String
+// String is also encoded into length + data like Blob.
+//
+// The type of String is 0x20, it also will be encoded into the last byte of the encoded bytes of length.
+//
+//              0x20 + 4 bits
+// +...........+-----------+
+// | 1xxx xxxx | 0010 xxxx |
+// +...........+-----------+
+func (enc *Encoder) encodeString(s string) {
+	enc.encodeLen(len(s), String)
+	enc.buf.WriteString(s)
+}
+
+// Encode Integer
+// Except the last byte, the first bit of each byte will be 1.
+// The remain 7 bits in these bytes and the remain 5 bits in the
+// last byte will be used to store the value of the Integer.
+//
+//    7 bits                  5 bits
+// +-----------+...........+-----------+
+// | 1xxx xxxx | 1xxx xxxx | ...x xxxx |
+// +-----------+...........+-----------+
+func (enc *Encoder) encodeLen(n int, code Code) {
+	for n > int(TagPackNumber) {
+		enc.buf.WriteCode(NumSignBit | (Code(n) & NumMask))
+		n >>= 7
+	}
+	enc.buf.WriteCode(code | Code(n))
 }
