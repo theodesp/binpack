@@ -38,6 +38,15 @@ func (enc *Encoder) EncodeValue(value reflect.Value) error {
 	return enc.err
 }
 
+// encode nil into one byte to buffer.
+//
+// +-----------+
+// | 0000 1111 |   0x0f
+// +-----------+
+func (enc *Encoder) encodeNil() {
+	enc.buf.WriteCode(Nil)
+}
+
 // writeTo sends the data item to the writer
 func (enc *Encoder) writeTo(w io.Writer) {
 	// Write the data.
@@ -55,6 +64,14 @@ func (enc *Encoder) setError(err error) {
 	}
 }
 
-func (enc *Encoder) encode(_ reflect.Value) {
+func (enc *Encoder) encode(v reflect.Value) {
 	defer catchError(&enc.err)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		panic("binpack: cannot encode nil pointer of type " + v.Type().String())
+	}
+	switch v.Kind() {
+	case reflect.Invalid: // nil
+		enc.encodeNil()
+	default:
+	}
 }
