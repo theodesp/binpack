@@ -67,6 +67,21 @@ func (enc *Encoder) encode(v reflect.Value) {
 		enc.encodeBool(v.Bool())
 	case reflect.String:
 		enc.encodeString(v.String())
+	case reflect.Slice:
+		if v.Type().Elem().Kind() == reflect.Uint8 {
+			enc.encodeBlob(v.Bytes())
+		}
+	case reflect.Array:
+		if v.Type().Elem().Kind() == reflect.Uint8 {
+			if v.CanAddr() {
+				b := v.Slice(0, v.Len()).Bytes()
+				enc.encodeBlob(b)
+				return
+			}
+			buf := make([]byte, v.Len())
+			reflect.Copy(reflect.ValueOf(buf), v)
+			enc.encodeBlob(buf)
+		}
 	default:
 	}
 }
@@ -128,4 +143,15 @@ func (enc *Encoder) encodeLen(n int, code Code) {
 		n >>= 7
 	}
 	enc.buf.WriteCode(code | Code(n))
+}
+
+// Encode Blob or []Byte
+// Blob will be encoded into 2 parts. First part is the length of Blob, the second part is the binary data.
+//
+// +----------------+
+// | length + data  |
+// +----------------+
+func (enc *Encoder) encodeBlob(b []byte) {
+	enc.encodeLen(len(b), Blob)
+	_, _ = enc.buf.Write(b)
 }

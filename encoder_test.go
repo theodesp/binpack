@@ -52,6 +52,12 @@ func TestEncoder(t *testing.T) {
 		{"", "20"},
 		{"a", "2161"},
 		{"hello", "2568656c6c6f"},
+		{[]byte{}, "10"},
+		{[]byte(nil), "10"},
+		{[]byte("abc¢"), "15616263c2a2"},
+		{[3]byte{1, 2, 3}, "13010203"},
+		{[1]byte{}, "1100"},
+		{[2]byte{1}, "120100"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)
