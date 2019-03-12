@@ -37,18 +37,9 @@ func TestEncoder(t *testing.T) {
 		in   interface{}
 		want string
 	}{
-		{
-			nil,
-			"0f",
-		},
-		{
-			true,
-			"04",
-		},
-		{
-			false,
-			"05",
-		},
+		{nil, "0f"},
+		{true, "04"},
+		{false, "05"},
 		{"", "20"},
 		{"a", "2161"},
 		{"hello", "2568656c6c6f"},
@@ -58,6 +49,12 @@ func TestEncoder(t *testing.T) {
 		{[3]byte{1, 2, 3}, "13010203"},
 		{[1]byte{}, "1100"},
 		{[2]byte{1}, "120100"},
+		{float32(3.14), "07c3f54840"},
+		{float32(0), "0700000000"},
+		{float32(-3.14), "07c3f548c0"},
+		{float64(3.14), "061f85eb51b81e0940"},
+		{float64(0), "060000000000000000"},
+		{float64(-3.14), "061f85eb51b81e09c0"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)

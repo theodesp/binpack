@@ -2,6 +2,7 @@ package binpack
 
 import (
 	"io"
+	"math"
 	"reflect"
 )
 
@@ -65,6 +66,10 @@ func (enc *Encoder) encode(v reflect.Value) {
 		enc.encodeNil()
 	case reflect.Bool:
 		enc.encodeBool(v.Bool())
+	case reflect.Float32:
+		enc.encodeFloat32(float32(v.Float()))
+	case reflect.Float64:
+		enc.encodeFloat64(v.Float())
 	case reflect.String:
 		enc.encodeString(v.String())
 	case reflect.Slice:
@@ -154,4 +159,40 @@ func (enc *Encoder) encodeLen(n int, code Code) {
 func (enc *Encoder) encodeBlob(b []byte) {
 	enc.encodeLen(len(b), Blob)
 	_, _ = enc.buf.Write(b)
+}
+
+// The Float type information will be encoded into the first byte,
+// followed by bytes of the Float in the IEEE-754 format, in Big Endian.
+//
+// Double will be encoded into 9 bytes, Single will be 5 bytes.
+//
+//  0x06        8 bytes
+// +-----------+===========+
+// | 0000 0110 |    data   |  Double precision.
+// +-----------+===========+
+//
+//  0x07        4 bytes
+// +-----------+===========+
+// | 0000 0111 |    data   |  Single precision.
+// +-----------+===========+
+func (enc *Encoder) encodeFloat32(f float32) {
+	fb := math.Float32bits(f)
+	enc.buf.WriteCode(Float)
+	shift := byte(32)
+	for shift > 0 {
+		enc.buf.WriteCode(Code(fb & 0xff))
+		fb >>= 8
+		shift -= 8
+	}
+}
+
+func (enc *Encoder) encodeFloat64(f float64) {
+	fb := math.Float64bits(f)
+	enc.buf.WriteCode(Double)
+	shift := byte(64)
+	for shift > 0 {
+		enc.buf.WriteCode(Code(fb & 0xff))
+		fb >>= 8
+		shift -= 8
+	}
 }
