@@ -91,6 +91,8 @@ func (enc *Encoder) encode(v reflect.Value) {
 			return
 		}
 		_ = enc.encodeList(v)
+	case reflect.Map:
+		_ = enc.encodeMap(v)
 	default:
 	}
 }
@@ -235,6 +237,53 @@ func (enc *Encoder) encodeList(v reflect.Value) error {
 	enc.buf.WriteCode(List)
 	for i := 0; i < l; i++ {
 		if err := enc.EncodeValue(v.Index(i)); err != nil {
+			return err
+		}
+	}
+	enc.buf.WriteCode(Closure)
+	return nil
+}
+
+// Dict type:
+//
+// +-----------+
+// | 0000 0011 |   0x03, Dict
+// +-----------+
+// Like List, the encoded data will begin with type information and end with
+// Closure.
+//
+// The key and value of every Entry of the Dictionary will be encoded like
+// following:
+//
+// +-----------+
+// | 0000 0011 | Dict
+// +-----------+----------------------------
+// |            key 1
+// +----------------------------------------
+// |          value 1
+// +----------------------------------------
+// |            key 2
+// +----------------------------------------
+// |          value 2
+// +----------------------------------------
+// .    .    .
+// .    .    .
+// .    .    .
+// +----------------------------------------
+// |            key N
+// +----------------------------------------
+// |          value N
+// +-----------+----------------------------
+// | 0000 0001 | Closure
+// +-----------+
+func (enc *Encoder) encodeMap(v reflect.Value) error {
+	enc.buf.WriteCode(Dict)
+
+	for _, key := range v.MapKeys() {
+		if err := enc.EncodeValue(key); err != nil {
+			return err
+		}
+		if err := enc.EncodeValue(v.MapIndex(key)); err != nil {
 			return err
 		}
 	}

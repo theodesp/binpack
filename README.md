@@ -35,6 +35,7 @@ See implementation examples:
 - [x] nil
 - [x] basic slices ([]string, []int, ...)
 - [x] basic arrays ([n]string, [n]int, ...)
+- [x] basic maps
 
 
 ## Run tests

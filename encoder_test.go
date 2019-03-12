@@ -59,6 +59,12 @@ func TestEncoder(t *testing.T) {
 		{[3][2]int{}, "01010101"},
 		{[2][3]string{}, "202020012020200101"},
 		{[3]string{"a", "b", "c"}, "21612162216301"},
+		{map[string]string(nil), "0301"},
+		{map[int]string{1: "string"}, "26737472696e6701"},
+		{
+			map[string]string{"a": "", "b": "", "c": "", "d": "", "e": ""},
+			"21612021622021632021642021652001",
+		},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)
