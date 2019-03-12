@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"errors"
+	"math"
 	"testing"
 )
 
@@ -56,15 +57,20 @@ func TestEncoder(t *testing.T) {
 		{float64(0), "060000000000000000"},
 		{float64(-3.14), "061f85eb51b81e09c0"},
 		{[]string{"a", "b", "c"}, "21612162216301"},
-		{[3][2]int{}, "01010101"},
+		{[3][2]int{}, "40400140400140400101"},
 		{[2][3]string{}, "202020012020200101"},
 		{[3]string{"a", "b", "c"}, "21612162216301"},
 		{map[string]string(nil), "0301"},
-		{map[int]string{1: "string"}, "26737472696e6701"},
+		{map[int]string{1: "string"}, "4126737472696e6701"},
 		{
 			map[string]string{"a": "", "b": "", "c": "", "d": "", "e": ""},
 			"21612021622021632021642021652001",
 		},
+		{int8(-1), "69"},
+		{int32(1), "59"},
+		{int64(math.MaxInt64), "ffffffffffffffffff40"},
+		{uint8(8), "8848"},
+		{uint64(math.MaxUint64), "ffffffffffffffffff41"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)

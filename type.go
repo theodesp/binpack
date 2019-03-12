@@ -20,6 +20,11 @@ const (
 	Integer         Code = 0x40 // 0100 0000
 	IntegerNegative Code = 0x20 // 0010 0000
 
+	IntegerTypeByte  Code = 0x01 << 3 // xxx0 1xxx
+	IntegerTypeShort Code = 0x02 << 3 // xxx1 0xxx
+	IntegerTypeInt   Code = 0x03 << 3 // xxx1 1xxx
+	IntegerTypeLong  Code = 0x00 << 3 // xxx0 0xxx
+
 	MaskIntegerSign      Code = 0x20 /* check if integer is negative */
 	MaskTypeInteger      Code = 0x60 /* 0110 0000: integer or negative integer */
 	MaskTypeStringOrBlob Code = 0x30 /* 00xx 0000: string or blob */
@@ -31,5 +36,5 @@ const (
 	TagPackUintLen Code = 0x10 // 0000 xxxx
 
 	NumSignBit Code = 0x80 // 1000 0000
-	NumMask    Code = 0x7f // 1000 0000
+	NumMask    Code = 0x7f // 0111 1111
 )

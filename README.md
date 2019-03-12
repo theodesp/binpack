@@ -36,6 +36,8 @@ See implementation examples:
 - [x] basic slices ([]string, []int, ...)
 - [x] basic arrays ([n]string, [n]int, ...)
 - [x] basic maps
+- [x] ints
+- [x] uints
 
 
 ## Run tests

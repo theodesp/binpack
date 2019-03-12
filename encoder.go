@@ -62,6 +62,12 @@ func (enc *Encoder) encode(v reflect.Value) {
 		panic("binpack: cannot encode nil pointer of type " + v.Type().String())
 	}
 	switch v.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16,
+		reflect.Int32, reflect.Int64:
+		enc.encodeInt(v)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16,
+		reflect.Uint32, reflect.Uint64:
+		enc.encodeUInt(v)
 	case reflect.Invalid: // nil
 		enc.encodeNil()
 	case reflect.Bool:
@@ -289,4 +295,76 @@ func (enc *Encoder) encodeMap(v reflect.Value) error {
 	}
 	enc.buf.WriteCode(Closure)
 	return nil
+}
+
+// Integer will be encoded into one or more bytes.
+//
+// The last byte is used to store the type and sign information of the Integer.
+//
+// The type and sign information is encode into the first 3 bits:
+//
+// positive
+//
+// +-----------+
+// | 010x xxxx |  0x40
+// +-----------+
+// negative
+//
+// +-----------+
+// | 011x xxxx |  0x60
+// +-----------+
+// Except the last byte, the first bit of each byte will be 1.
+// The remain 7 bits in these bytes and the remain 5 bits in the
+// last byte will be used to store the value of the Integer, For example:
+//
+//    7 bits                  5 bits
+// +-----------+...........+-----------+
+// | 1xxx xxxx | 1xxx xxxx | ...x xxxx |
+// +-----------+...........+-----------+
+func (enc *Encoder) encodeInt(v reflect.Value) {
+	tag := Integer
+	switch v.Kind() {
+	case reflect.Int8:
+		tag |= IntegerTypeByte
+	case reflect.Int16:
+		tag |= IntegerTypeShort
+	case reflect.Int32:
+		tag |= IntegerTypeInt
+	case reflect.Int, reflect.Int64:
+		tag |= IntegerTypeLong
+	}
+
+	val := v.Int()
+	if val < 0 {
+		val = -val
+		tag |= IntegerNegative
+	}
+
+	for val > int64(TagPackInteger) || val>>3 > 0 {
+		enc.buf.WriteCode(NumSignBit | (Code(val) & NumMask))
+		val >>= 7
+	}
+
+	enc.buf.WriteCode(tag | Code(val))
+}
+
+func (enc *Encoder) encodeUInt(v reflect.Value) {
+	tag := Integer
+	switch v.Kind() {
+	case reflect.Uint8:
+		tag |= IntegerTypeByte
+	case reflect.Uint16:
+		tag |= IntegerTypeShort
+	case reflect.Uint32:
+		tag |= IntegerTypeInt
+	case reflect.Uint, reflect.Uint64:
+		tag |= IntegerTypeLong
+	}
+
+	val := v.Uint()
+	for val > uint64(TagPackInteger) || val>>3 > 0 {
+		enc.buf.WriteCode(NumSignBit | (Code(val) & NumMask))
+		val >>= 7
+	}
+	enc.buf.WriteCode(tag | Code(val))
 }
