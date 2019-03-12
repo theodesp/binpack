@@ -75,7 +75,9 @@ func (enc *Encoder) encode(v reflect.Value) {
 	case reflect.Slice:
 		if v.Type().Elem().Kind() == reflect.Uint8 {
 			enc.encodeBlob(v.Bytes())
+			return
 		}
+		_ = enc.encodeList(v)
 	case reflect.Array:
 		if v.Type().Elem().Kind() == reflect.Uint8 {
 			if v.CanAddr() {
@@ -86,7 +88,9 @@ func (enc *Encoder) encode(v reflect.Value) {
 			buf := make([]byte, v.Len())
 			reflect.Copy(reflect.ValueOf(buf), v)
 			enc.encodeBlob(buf)
+			return
 		}
+		_ = enc.encodeList(v)
 	default:
 	}
 }
@@ -195,4 +199,45 @@ func (enc *Encoder) encodeFloat64(f float64) {
 		fb >>= 8
 		shift -= 8
 	}
+}
+
+// For encoding List and Dict, we define a Closure byte.
+//
+// +-----------+
+// | 0000 0001 |   0x01, Closure
+// +-----------+
+// List type is encoded to one byte:
+//
+// +-----------+
+// | 0000 0010 |   0x02, List
+// +-----------+
+// List type information will be encoded into the first byte, then following every element in List.
+//
+// The last byte is Closure.
+//
+// +-----------+
+// | 0000 0010 |
+// +-----------+----------------------------
+// |          element 1
+// +----------------------------------------
+// |          element 2
+// +----------------------------------------
+// .    .    .
+// .    .    .
+// .    .    .
+// +----------------------------------------
+// |          element N
+// +-----------+----------------------------
+// | 0000 0001 | Closure
+// +-----------+
+func (enc *Encoder) encodeList(v reflect.Value) error {
+	l := v.Len()
+	enc.buf.WriteCode(List)
+	for i := 0; i < l; i++ {
+		if err := enc.EncodeValue(v.Index(i)); err != nil {
+			return err
+		}
+	}
+	enc.buf.WriteCode(Closure)
+	return nil
 }

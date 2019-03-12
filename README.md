@@ -24,6 +24,19 @@ See **.travis.yml** for supported **go** versions.
 See implementation examples:
 
 
+## Supported Types
+
+- [x] string
+- [x] []byte
+- [x] []uint8
+- [x] float32
+- [x] float64
+- [x] bool
+- [x] nil
+- [x] basic slices ([]string, []int, ...)
+- [x] basic arrays ([n]string, [n]int, ...)
+
+
 ## Run tests
 
     go test -race

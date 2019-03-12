@@ -55,6 +55,10 @@ func TestEncoder(t *testing.T) {
 		{float64(3.14), "061f85eb51b81e0940"},
 		{float64(0), "060000000000000000"},
 		{float64(-3.14), "061f85eb51b81e09c0"},
+		{[]string{"a", "b", "c"}, "21612162216301"},
+		{[3][2]int{}, "01010101"},
+		{[2][3]string{}, "202020012020200101"},
+		{[3]string{"a", "b", "c"}, "21612162216301"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)
