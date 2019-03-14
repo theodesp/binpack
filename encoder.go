@@ -1,6 +1,7 @@
 package binpack
 
 import (
+	"fmt"
 	"io"
 	"math"
 	"reflect"
@@ -83,7 +84,7 @@ func (enc *Encoder) encode(v reflect.Value) {
 			enc.encodeBlob(v.Bytes())
 			return
 		}
-		_ = enc.encodeList(v)
+		enc.encodeList(v)
 	case reflect.Array:
 		if v.Type().Elem().Kind() == reflect.Uint8 {
 			if v.CanAddr() {
@@ -96,10 +97,11 @@ func (enc *Encoder) encode(v reflect.Value) {
 			enc.encodeBlob(buf)
 			return
 		}
-		_ = enc.encodeList(v)
+		enc.encodeList(v)
 	case reflect.Map:
-		_ = enc.encodeMap(v)
+		enc.encodeMap(v)
 	default:
+		enc.encodeString(fmt.Sprintf("binpack: Unsupported type %s", v.Type()))
 	}
 }
 
@@ -238,16 +240,15 @@ func (enc *Encoder) encodeFloat64(f float64) {
 // +-----------+----------------------------
 // | 0000 0001 | Closure
 // +-----------+
-func (enc *Encoder) encodeList(v reflect.Value) error {
+func (enc *Encoder) encodeList(v reflect.Value) {
 	l := v.Len()
 	enc.buf.WriteCode(List)
 	for i := 0; i < l; i++ {
 		if err := enc.EncodeValue(v.Index(i)); err != nil {
-			return err
+			return
 		}
 	}
 	enc.buf.WriteCode(Closure)
-	return nil
 }
 
 // Dict type:
@@ -282,19 +283,18 @@ func (enc *Encoder) encodeList(v reflect.Value) error {
 // +-----------+----------------------------
 // | 0000 0001 | Closure
 // +-----------+
-func (enc *Encoder) encodeMap(v reflect.Value) error {
+func (enc *Encoder) encodeMap(v reflect.Value) {
 	enc.buf.WriteCode(Dict)
 
 	for _, key := range v.MapKeys() {
 		if err := enc.EncodeValue(key); err != nil {
-			return err
+			return
 		}
 		if err := enc.EncodeValue(v.MapIndex(key)); err != nil {
-			return err
+			return
 		}
 	}
 	enc.buf.WriteCode(Closure)
-	return nil
 }
 
 // Integer will be encoded into one or more bytes.

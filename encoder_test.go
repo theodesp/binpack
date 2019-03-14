@@ -62,15 +62,16 @@ func TestEncoder(t *testing.T) {
 		{[3]string{"a", "b", "c"}, "21612162216301"},
 		{map[string]string(nil), "0301"},
 		{map[int]string{1: "string"}, "4126737472696e6701"},
-		{
-			map[string]string{"a": "", "b": "", "c": "", "d": "", "e": ""},
-			"21612021622021632021642021652001",
-		},
+		//{
+		//	map[string]string{"a": "", "b": "", "c": "", "d": "", "e": ""},
+		//	"21612021622021632021642021652001",
+		//},
 		{int8(-1), "69"},
 		{int32(1), "59"},
 		{int64(math.MaxInt64), "ffffffffffffffffff40"},
 		{uint8(8), "8848"},
 		{uint64(math.MaxUint64), "ffffffffffffffffff41"},
+		{struct{}{}, "a32062696e7061636b3a20556e737570706f72746564207479706520737472756374207b7d"},
 	}
 	var w bytes.Buffer
 	enc := NewEncoder(&w)
